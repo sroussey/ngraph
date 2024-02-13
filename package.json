@@ -1,8 +1,8 @@
 {
-  "name": "@clarkmcc/ngraph",
-  "version": "0.3.0",
+  "name": "@sroussey/ngraph",
+  "version": "0.3.1",
   "description": "A blender-style node editor built on xyflow",
-  "repository": "git@github.com:clarkmcc/ngraph.git",
+  "repository": "git@github.com:sroussey/ngraph.git",
   "author": "Clark McCauley <clarkmccauley@gmail.com>",
   "license": "MIT",
   "type": "module",
