@@ -1,6 +1,6 @@
 {
   "name": "@sroussey/ngraph",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A blender-style node editor built on xyflow",
   "repository": "git@github.com:sroussey/ngraph.git",
   "author": "Clark McCauley <clarkmccauley@gmail.com>",
@@ -92,14 +92,14 @@
     "@rollup/rollup-linux-x64-gnu": "4.9.5"
   },
   "dependencies": {
-    "@sroussey/typescript-graph": "^0.3.11",
+    "@sroussey/typescript-graph": "^0.3.12",
     "@uiw/react-color": "^2.0.6",
     "@xyflow/react": "^12.0.0-next.8",
     "dagre": "^0.8.5",
     "immer": "^10.0.3",
-    "nanoid": "^5.0.4",
-    "react-hotkeys-hook": "^4.4.3",
+    "nanoid": "^5.0.5",
+    "react-hotkeys-hook": "^4.5.0",
     "react-icons": "^5.0.1",
-    "zustand": "^4.4.7"
+    "zustand": "^4.5.0"
   }
 }
