@@ -181,18 +181,18 @@ type WithType<T, K> = T & {
 
 export type InputProps = BaseInputProps & NodeInputConfig & ValueTypeConfig
 
-export interface CustomNodeProps extends NodeFocusState{
+export interface CustomNodeProps extends NodeFocusState {
   node: Node
   slots: NodeBodySlots
 }
 
-export class GraphConfig {
+export class GraphConfig implements IGraphConfig {
   readonly valueTypes: ValueTypes = {}
   readonly keybindings: KeyBindings
   readonly nodeKinds: {
     [key: string]: NodeKindConfig
   } = {}
-  private readonly nodeTypes: {
+  readonly nodeTypes: {
     [key: string]: NodeConfig
   } = {}
   private customNodes: {
@@ -378,7 +378,10 @@ export class GraphConfig {
     ) => JSXElementConstructor<any>,
   ): Record<string, JSXElementConstructor<any>> {
     return Object.entries(this.nodeTypes)
-      .map(([type, node]): [string, JSXElementConstructor<any>] => [type, buildNode(this, node, type)])
+      .map(([type, node]): [string, JSXElementConstructor<any>] => [
+        type,
+        buildNode(this, node, type),
+      ])
       .reduce(
         (acc: Record<string, JSXElementConstructor<any>>, [type, node]) => {
           acc[type] = node
