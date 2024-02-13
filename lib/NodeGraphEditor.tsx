@@ -1,6 +1,8 @@
 import {
   Edge,
+  EdgeChange,
   Node,
+  NodeChange,
   ReactFlow,
   ReactFlowProps,
   ReactFlowProvider,
@@ -17,6 +19,7 @@ import {
   JSX,
   CSSProperties,
   useEffect,
+  useCallback,
 } from 'react'
 import { defaultEdgeTypes } from './edge-types'
 import { GraphConfig } from './config'
@@ -28,6 +31,7 @@ import { GraphProvider, useGraphStore } from './context/GraphContext.tsx'
 import { DeserializeFunc, SerializeFunc } from './types/store.ts'
 import { GraphSlots } from './types/slots.ts'
 import './tailwind.css'
+import { Graph } from './types/general.ts'
 
 type NodeGraphEditorProps = Omit<FlowProps, 'edges' | 'nodes'> & {
   onSave?: (data: any) => void
@@ -71,12 +75,12 @@ export type NodeGraphHandle = {
   deserialize: DeserializeFunc
   addNode: (node: Node) => void
   removeNode: (node: Node) => void
-  updateNode: (node: Partial<Node> & {id: string}) => void
+  updateNode: (node: Partial<Node> & { id: string }) => void
   updateNodeData: (nodeId: string, data: Record<string, any>) => void
   getNode: (nodeId: string) => Node | undefined
   addEdge: (edge: Edge) => void
   removeEdge: (edge: Edge) => void
-  updateEdge: (edge: Partial<Edge> & {id: string}) => void
+  updateEdge: (edge: Partial<Edge> & { id: string }) => void
   getEdge: (edgeId: string) => Edge | undefined
 }
 
@@ -129,16 +133,45 @@ const Flow = forwardRef<NodeGraphHandle, FlowProps>(
         updateEdge,
         getEdge,
       }),
-      [serialize],
+      [
+        layout,
+        serialize,
+        deserialize,
+        addNode,
+        removeNode,
+        getNode,
+        updateNode,
+        updateNodeData,
+        addEdge,
+        removeEdge,
+        updateEdge,
+        getEdge,
+      ],
     )
 
-    const { nodes, edges, onNodesChange, onEdgesChange } = useGraphStore(
+    const { nodes, edges, graphNodesChange, graphEdgesChange } = useGraphStore(
       (store) => ({
         nodes: store.nodes,
         edges: store.edges,
-        onNodesChange: store.onNodesChange,
-        onEdgesChange: store.onEdgesChange,
+        graphNodesChange: store.onNodesChange,
+        graphEdgesChange: store.onEdgesChange,
       }),
+    )
+
+    const handleNodesChange = useCallback(
+      (nodes: NodeChange<Graph.Node>[]) => {
+        graphNodesChange(nodes)
+        if (props.onNodesChange) props.onNodesChange(nodes)
+      },
+      [graphNodesChange, props.onNodesChange],
+    )
+
+    const handleEdgesChange = useCallback(
+      (edges: EdgeChange<Graph.Edge>[]) => {
+        graphEdgesChange(edges)
+        if (props.onEdgesChange) props.onEdgesChange(edges)
+      },
+      [graphEdgesChange, props.onEdgesChange],
     )
 
     const initialized = useNodesInitialized()
@@ -165,8 +198,8 @@ const Flow = forwardRef<NodeGraphHandle, FlowProps>(
           colorMode={props.colorMode ?? 'dark'}
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
+          onNodesChange={handleNodesChange}
+          onEdgesChange={handleEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
