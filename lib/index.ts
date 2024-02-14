@@ -1,4 +1,9 @@
-export { GraphConfig, type InputProps, type IGraphConfig } from './config'
+export {
+  GraphConfig,
+  type InputProps,
+  type IGraphConfig,
+  type CustomNodeProps,
+} from './config'
 export { NodeGraphEditor, type NodeGraphHandle } from './NodeGraphEditor'
 export { useBuildGraphConfig } from './hooks/config.ts'
 export {
