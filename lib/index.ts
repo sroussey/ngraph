@@ -32,3 +32,4 @@ export {
   PipelineLayoutEngine,
   PipelineCenteredLayoutEngine,
 } from './layout/pipeline.ts'
+export type { NodeFocusState } from './node-builder.tsx'
