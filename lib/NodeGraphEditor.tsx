@@ -27,8 +27,12 @@ import { useSocketConnect } from './hooks/connect'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { ClipboardItem } from './clipboard'
 import { LayoutEngine, useLayoutEngine } from './layout/layout'
-import { GraphProvider, useGraphStore } from './context/GraphContext.tsx'
-import { DeserializeFunc, SerializeFunc } from './types/store.ts'
+import {
+  GraphProvider,
+  useGraphApi,
+  useGraphStore,
+} from './context/GraphContext.tsx'
+import { DeserializeFunc, GraphStore, SerializeFunc } from './types/store.ts'
 import { GraphSlots } from './types/slots.ts'
 import './tailwind.css'
 import { Graph } from './types/general.ts'
@@ -82,6 +86,9 @@ export type NodeGraphHandle = {
   removeEdge: (edge: Edge) => void
   updateEdge: (edge: Partial<Edge> & { id: string }) => void
   getEdge: (edgeId: string) => Edge | undefined
+  subscribe: (
+    listener: (state: GraphStore, prevState: GraphStore) => void,
+  ) => () => void
 }
 
 const Flow = forwardRef<NodeGraphHandle, FlowProps>(
@@ -116,6 +123,7 @@ const Flow = forwardRef<NodeGraphHandle, FlowProps>(
     const updateNodeData = useGraphStore((store) => store.updateNodeData)
     const getNode = useGraphStore((store) => store.getNode)
     const getEdge = useGraphStore((store) => store.getEdge)
+    const subscribe = useGraphApi().subscribe
 
     useImperativeHandle(
       ref,
@@ -132,6 +140,7 @@ const Flow = forwardRef<NodeGraphHandle, FlowProps>(
         removeEdge,
         updateEdge,
         getEdge,
+        subscribe,
       }),
       [
         layout,
@@ -146,6 +155,7 @@ const Flow = forwardRef<NodeGraphHandle, FlowProps>(
         removeEdge,
         updateEdge,
         getEdge,
+        subscribe,
       ],
     )
 
