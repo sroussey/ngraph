@@ -14,8 +14,8 @@ export class DagreLayoutEngine extends LayoutEngine {
 
     nodes.forEach((node) => {
       g.setNode(node.id, {
-        width: node.computed?.width,
-        height: node.computed?.height,
+        width: node.measured?.width,
+        height: node.measured?.height,
       })
     })
 
@@ -32,10 +32,10 @@ export class DagreLayoutEngine extends LayoutEngine {
 
       // We are shifting the dagre node position (anchor=center center) to the top left
       // so it matches the React Flow node anchor point (top left).
-      if (node.computed?.width && node.computed?.height) {
+      if (node.measured?.width && node.measured?.height) {
         node.position = {
-          x: nodeWithPosition.x - node.computed?.width / 2 + 70,
-          y: nodeWithPosition.y - node.computed?.height / 2 + 50,
+          x: nodeWithPosition.x - node.measured?.width / 2 + 70,
+          y: nodeWithPosition.y - node.measured?.height / 2 + 50,
         }
       }
       return node

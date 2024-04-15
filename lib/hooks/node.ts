@@ -50,8 +50,13 @@ function useToggleNodeArrayProperty(
   key: string,
 ): [boolean, (newState: boolean) => void] {
   const updateNodeData = useUpdateNodeData()
-  const data =
-    useNodesData<Graph.Node<{ [INPUT_GROUPS_FIELD]: string[] }>>(nodeId)
+  const datainfo = useNodesData<
+    Graph.Node<{
+      [INPUT_GROUPS_FIELD]: string[]
+      internal: Graph.NodeInternals
+    }>
+  >(nodeId)
+  const data = datainfo!.data
   const [isEnabled, setIsEnabled] = useState(
     data![INPUT_GROUPS_FIELD]?.includes(key) ?? false,
   )
@@ -60,7 +65,7 @@ function useToggleNodeArrayProperty(
       setIsEnabled(newState)
 
       updateNodeData(nodeId, (node) => {
-        const currentArray: string[] = node.data[property] || []
+        const currentArray: string[] = (node.data[property] || []) as string[]
         let updatedArray
 
         if (newState) {
@@ -88,7 +93,8 @@ export function useNodeFieldValue<T>(
 ): [T, (value: T) => void] {
   const nodeId = useNodeId()
   const { setNodes } = useReactFlow()
-  const data = useNodesData<any>(nodeId!)
+  const datainfo = useNodesData<any>(nodeId!)
+  const data = datainfo!.data
   const value = useMemo(
     () => (data ? data[field] : defaultValue) ?? defaultValue,
     [data, defaultValue],
@@ -143,7 +149,9 @@ export function useUpdateNode(): UpdateNode {
   )
 }
 
-export function useUpdateNodeData<T extends object>(): UpdateNodeData<T> {
+export function useUpdateNodeData<
+  T extends Record<string, unknown>,
+>(): UpdateNodeData<T> {
   const updateNode = useUpdateNode()
   return useCallback(
     (id, dataUpdate, options = { replace: false }) => {
@@ -208,12 +216,8 @@ export function useNodeInternals(nodeId?: string): UseNodeInternals {
 
   // Helper function to accept an immer recipe and update the node data accordingly
   const updateInternal = useCallback(
-    (
-      recipe: (
-        draft: Draft<Graph.NodeData<unknown>>,
-      ) => void | Graph.NodeData<unknown>,
-    ) => {
-      updateNodeData(nodeId!, produce<Graph.NodeData<unknown>>(recipe))
+    (recipe: (draft: Draft<Graph.NodeData>) => void | Graph.NodeData) => {
+      updateNodeData(nodeId!, produce<Graph.NodeData>(recipe))
     },
     [nodeId, updateNodeData],
   )
@@ -227,14 +231,14 @@ export function useNodeInternals(nodeId?: string): UseNodeInternals {
     [updateInternal],
   )
 
-  const data = useNodesData<Graph.Node>(nodeId)
+  const datainfo = useNodesData<Graph.Node>(nodeId)
 
   return useMemo(
     () => ({
-      inputs: data!.internal.inputs,
-      outputs: data!.internal.outputs,
+      inputs: datainfo!.data.internal.inputs,
+      outputs: datainfo!.data!.internal.outputs,
       addOutput,
     }),
-    [data, addOutput],
+    [datainfo, addOutput],
   )
 }

@@ -1,4 +1,4 @@
-import { Connection, Edge, ReactFlowState } from '@xyflow/react'
+import { Connection, Edge, Node, ReactFlowState } from '@xyflow/react'
 import { Graph } from './types'
 import { GraphConfig } from './config.ts'
 import { produce } from 'immer'
@@ -26,13 +26,13 @@ export function createNode(
 
 export function addNodeInternals(
   config: GraphConfig,
-  node: Graph.Node,
+  node: Node | Graph.Node,
 ): Graph.Node {
   if (node.data.hasOwnProperty('internal')) {
-    return node
+    return node as Graph.Node
   }
 
-  return produce(node, (draft) => {
+  return produce(node as Graph.Node, (draft) => {
     const nodeConfig = config.getNodeConfig(node.type ?? '')
     const inputs = nodeConfig
       ? (nodeConfig.inputs ?? []).map((input) => ({

@@ -96,13 +96,13 @@ class GraphPipelineLayout<T extends Node> {
   protected getNodeHeight(node: T): number {
     // Implement logic to determine the height of the node
     // If node heights are fixed or uniform, you can return that constant value
-    return node.computed?.height || this.nodeHeightMin // Example fixed height
+    return node.measured?.height || this.nodeHeightMin // Example fixed height
   }
 
   protected getNodeWidth(node: T): number {
     // Implement logic to determine the height of the node
     // If node heights are fixed or uniform, you can return that constant value
-    return node.computed?.width || this.nodeWidthMin // Example fixed height
+    return node.measured?.width || this.nodeWidthMin // Example fixed height
   }
 
   public getNodePosition(nodeIdentity: string): PositionXY | undefined {

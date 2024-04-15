@@ -41,6 +41,8 @@ type NodeGraphEditorProps = Omit<FlowProps, 'edges' | 'nodes'> & {
   onSave?: (data: any) => void
   config: GraphConfig
   slots?: Partial<GraphSlots>
+  defaultNodes?: Graph.Node[]
+  defaultEdges?: Graph.Edge[]
 }
 
 export const NodeGraphEditor = forwardRef<
@@ -66,7 +68,7 @@ export const NodeGraphEditor = forwardRef<
   },
 )
 
-type FlowProps = ReactFlowProps & {
+type FlowProps = ReactFlowProps<Node, Edge> & {
   backgroundStyles?: CSSProperties
   /**
    * The default layout engine to use when nodes are provided without positions.
@@ -169,16 +171,16 @@ const Flow = forwardRef<NodeGraphHandle, FlowProps>(
     )
 
     const handleNodesChange = useCallback(
-      (nodes: NodeChange<Graph.Node>[]) => {
-        graphNodesChange(nodes)
+      (nodes: NodeChange<Node>[]) => {
+        graphNodesChange(nodes as NodeChange<Graph.Node>[])
         if (props.onNodesChange) props.onNodesChange(nodes)
       },
       [graphNodesChange, props.onNodesChange],
     )
 
     const handleEdgesChange = useCallback(
-      (edges: EdgeChange<Graph.Edge>[]) => {
-        graphEdgesChange(edges)
+      (edges: EdgeChange<Edge>[]) => {
+        graphEdgesChange(edges as EdgeChange<Graph.Edge>[])
         if (props.onEdgesChange) props.onEdgesChange(edges)
       },
       [graphEdgesChange, props.onEdgesChange],

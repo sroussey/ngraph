@@ -1,14 +1,15 @@
 import { Edge as _Edge, Node as _Node } from '@xyflow/react'
 
 export namespace Graph {
-  export type Node<Data = unknown> = Omit<_Node, 'data'> & {
-    data: NodeData<Data>
-  }
-
-  export type NodeData<Data> = Data & {
+  export type NodeData<
+    Data extends Record<string, unknown> = Record<string, unknown>,
+  > = Data & {
     internal: NodeInternals
   }
 
+  export type Node<Data extends NodeData = NodeData> = _Node<Data> & {
+    data: NodeData<Data>
+  }
   export type NodeInputOutput = {
     id: string
     name: string
@@ -20,7 +21,7 @@ export namespace Graph {
     outputs: NodeInputOutput[]
   }
 
-  export type Edge = Omit<_Edge, 'data'> & {
+  export type Edge = _Edge & {
     data?: {
       targetHandle: {
         name: string
@@ -29,3 +30,7 @@ export namespace Graph {
     }
   }
 }
+
+export type Node<
+  Data extends Record<string, unknown> = Record<string, unknown>,
+> = Graph.Node<Graph.NodeData<Data>>

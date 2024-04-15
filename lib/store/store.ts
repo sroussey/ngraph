@@ -41,7 +41,9 @@ export function createGraphStore({
         set({ edges: applyEdgeChanges(changes, get().edges) }),
 
       addNode: (node: Node | Graph.Node) =>
-        set({ nodes: [...get().nodes, addNodeInternals(config, node)] }),
+        set({
+          nodes: [...get().nodes, addNodeInternals(config, node)],
+        }),
       removeNode: (node: string | Node | Graph.Node) => {
         const id = typeof node === 'string' ? node : node.id
         set({ nodes: get().nodes.filter((item) => item.id !== id) })
@@ -68,7 +70,7 @@ export function createGraphStore({
         get().nodes.find((item) => item.id === nodeId),
 
       addEdge: (edge: Edge | Graph.Edge) =>
-        set({ edges: [...get().edges, edge] }),
+        set({ edges: [...get().edges, edge] as Graph.Edge[] }),
       removeEdge: (edge: string | Edge | Graph.Edge) => {
         const id = typeof edge === 'string' ? edge : edge.id
         set({ edges: get().edges.filter((item) => item.id !== id) })
@@ -77,7 +79,7 @@ export function createGraphStore({
         set({
           edges: get().edges.map((item) =>
             item.id === edge.id ? { ...item, ...edge } : item,
-          ),
+          ) as Graph.Edge[],
         })
       },
       getEdge: (edgeId: string) =>
