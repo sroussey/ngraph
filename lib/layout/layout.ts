@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Edge, Node, useReactFlow } from '@xyflow/react'
+import { Edge, ReactFlowInstance, Node, useReactFlow } from '@xyflow/react'
 
 export abstract class LayoutEngine {
   abstract name(): string
@@ -19,8 +19,8 @@ export function useLayoutEngine() {
 
 function computeLayout(
   engine: LayoutEngine,
-  getNodes: any,
-  getEdges: any,
+  getNodes: ReactFlowInstance['getNodes'],
+  getEdges: ReactFlowInstance['getEdges'],
 ): Node[] {
   const layoutEngine = getLayoutEngine(engine.name())
   if (!layoutEngine) throw new Error(`Unknown layout engine ${engine}`)
