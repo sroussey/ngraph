@@ -28,7 +28,7 @@ export function addNodeInternals(
   config: GraphConfig,
   node: Node | Graph.Node,
 ): Graph.Node {
-  if (node.data.hasOwnProperty('internal')) {
+  if (node.data.hasOwnProperty('internalIO')) {
     return node as Graph.Node
   }
 
@@ -50,7 +50,7 @@ export function addNodeInternals(
         }))
       : []
 
-    draft.data.internal = {
+    draft.data.internalIO = {
       inputs,
       outputs,
     }

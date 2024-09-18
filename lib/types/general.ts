@@ -4,7 +4,7 @@ export namespace Graph {
   export type NodeData<
     Data extends Record<string, unknown> = Record<string, unknown>,
   > = Data & {
-    internal: NodeInternals
+    internalIO: NodeIO
   }
 
   export type Node<Data extends NodeData = NodeData> = _Node<Data> & {
@@ -16,7 +16,7 @@ export namespace Graph {
     valueType: string
   }
 
-  export type NodeInternals = {
+  export type NodeIO = {
     inputs: NodeInputOutput[]
     outputs: NodeInputOutput[]
   }

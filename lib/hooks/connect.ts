@@ -18,7 +18,7 @@ export function useSocketConnect() {
       let isTargetArray = false
 
       const targetNode = getNodes().find((node) => node.id === params.target)!
-      const targetInput = targetNode.data.internal.inputs.find(
+      const targetInput = targetNode.data.internalIO.inputs.find(
         (input) => input.id === params.targetHandle,
       )
 

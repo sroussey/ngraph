@@ -53,7 +53,7 @@ function useToggleNodeArrayProperty(
   const datainfo = useNodesData<
     Graph.Node<{
       [INPUT_GROUPS_FIELD]: string[]
-      internal: Graph.NodeInternals
+      internalIO: Graph.NodeIO
     }>
   >(nodeId)
   const data = datainfo!.data
@@ -198,8 +198,8 @@ export function useNodeCollapsed(): [boolean, () => void] {
 }
 
 type UseNodeInternals = {
-  inputs: Graph.NodeInternals['inputs']
-  outputs: Graph.NodeInternals['outputs']
+  inputs: Graph.NodeIO['inputs']
+  outputs: Graph.NodeIO['outputs']
   addOutput: (output: Graph.NodeInputOutput) => void
 }
 
@@ -225,7 +225,7 @@ export function useNodeInternals(nodeId?: string): UseNodeInternals {
   const addOutput = useCallback(
     (output: Graph.NodeInputOutput) => {
       updateInternal((draft) => {
-        draft.internal.outputs.push(output)
+        draft.internalIO.outputs.push(output)
       })
     },
     [updateInternal],
@@ -235,8 +235,8 @@ export function useNodeInternals(nodeId?: string): UseNodeInternals {
 
   return useMemo(
     () => ({
-      inputs: datainfo!.data.internal.inputs,
-      outputs: datainfo!.data!.internal.outputs,
+      inputs: datainfo!.data.internalIO.inputs,
+      outputs: datainfo!.data!.internalIO.outputs,
       addOutput,
     }),
     [datainfo, addOutput],
