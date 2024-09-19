@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import {
   Edge,
-  isNode,
   Node,
   useNodeId,
   useNodesData,
@@ -12,7 +11,7 @@ import { shallow } from 'zustand/shallow'
 import { Draft, produce } from 'immer'
 import { Graph } from '../types'
 
-const INPUT_GROUPS_FIELD = '__inputGroupsExpanded'
+export const INPUT_GROUPS_FIELD = '__inputGroupsExpanded'
 
 /**
  * A drop-in replacement for the useState hook that stores whether an input group is expanded
@@ -49,13 +48,8 @@ function useToggleNodeArrayProperty(
   property: string,
   key: string,
 ): [boolean, (newState: boolean) => void] {
-  const updateNodeData = useUpdateNodeData()
-  const datainfo = useNodesData<
-    Graph.Node<{
-      [INPUT_GROUPS_FIELD]: string[]
-      internalIO: Graph.NodeIO
-    }>
-  >(nodeId)
+  const { updateNodeData } = useReactFlow<Graph.Node>()
+  const datainfo = useNodesData<Graph.Node>(nodeId)
   const data = datainfo!.data
   const [isEnabled, setIsEnabled] = useState(
     data![INPUT_GROUPS_FIELD]?.includes(key) ?? false,
@@ -64,7 +58,7 @@ function useToggleNodeArrayProperty(
     (newState: React.SetStateAction<boolean>) => {
       setIsEnabled(newState)
 
-      updateNodeData(nodeId, (node) => {
+      updateNodeData(nodeId, (node: Graph.Node) => {
         const currentArray: string[] = (node.data[property] || []) as string[]
         let updatedArray
 
@@ -78,10 +72,10 @@ function useToggleNodeArrayProperty(
           updatedArray = currentArray.filter((item) => item !== key)
         }
 
-        return { ...node.data, [property]: updatedArray }
+        return { ...node.data, [property]: updatedArray } as Graph.NodeDataIO
       })
     },
-    [nodeId, property, updateNodeData],
+    [nodeId, property],
   )
 
   return [isEnabled, toggleProperty]
@@ -114,7 +108,9 @@ export function useNodeFieldValue<T>(
 
 export type UpdateNode = (
   id: string,
-  dataUpdate: Partial<Node> | ((node: Node) => Partial<Node>),
+  dataUpdate:
+    | Partial<Graph.Node>
+    | ((node: Partial<Graph.Node>) => Partial<Graph.Node>),
   options?: { replace: boolean },
 ) => void
 
@@ -123,53 +119,6 @@ export type UpdateNodeData<T extends object> = (
   dataUpdate: T | ((node: Node) => T),
   options?: { replace: boolean },
 ) => void
-
-export function useUpdateNode(): UpdateNode {
-  const { setNodes } = useReactFlow()
-  return useCallback(
-    (id, nodeUpdate, options = { replace: true }) => {
-      setNodes((prevNodes) =>
-        prevNodes.map((node) => {
-          if (node.id === id) {
-            const nextNode =
-              typeof nodeUpdate === 'function'
-                ? nodeUpdate(node as Node)
-                : nodeUpdate
-            // @ts-ignore
-            return options.replace && isNode(nextNode)
-              ? nextNode
-              : { ...node, ...nextNode }
-          }
-
-          return node
-        }),
-      )
-    },
-    [setNodes],
-  )
-}
-
-export function useUpdateNodeData<
-  T extends Record<string, unknown>,
->(): UpdateNodeData<T> {
-  const updateNode = useUpdateNode()
-  return useCallback(
-    (id, dataUpdate, options = { replace: false }) => {
-      updateNode(
-        id,
-        (node) => {
-          const nextData =
-            typeof dataUpdate === 'function' ? dataUpdate(node) : dataUpdate
-          return options.replace
-            ? { ...node, data: nextData }
-            : { ...node, data: { ...node.data, ...nextData } }
-        },
-        options,
-      )
-    },
-    [updateNode],
-  )
-}
 
 export function useNodesEdges(nodeId: string): Edge[] {
   return useStore(
@@ -203,11 +152,11 @@ type UseNodeInternals = {
   addOutput: (output: Graph.NodeInputOutput) => void
 }
 
-export function useNodeInternals(nodeId?: string): UseNodeInternals {
+export function useNodeInternalIO(nodeId?: string): UseNodeInternals {
   const currentNodeId = useNodeId()
   if (!nodeId) {
     if (!currentNodeId) {
-      throw new Error('useNodeInternals must be used inside a node')
+      throw new Error('useNodeInternalIO must be used inside a node')
     }
     nodeId = currentNodeId
   }
@@ -216,8 +165,8 @@ export function useNodeInternals(nodeId?: string): UseNodeInternals {
 
   // Helper function to accept an immer recipe and update the node data accordingly
   const updateInternal = useCallback(
-    (recipe: (draft: Draft<Graph.NodeData>) => void | Graph.NodeData) => {
-      updateNodeData(nodeId!, produce<Graph.NodeData>(recipe))
+    (recipe: (draft: Draft<Graph.Node>) => void | Graph.NodeDataIO) => {
+      updateNodeData(nodeId!, produce(recipe))
     },
     [nodeId, updateNodeData],
   )
@@ -225,7 +174,7 @@ export function useNodeInternals(nodeId?: string): UseNodeInternals {
   const addOutput = useCallback(
     (output: Graph.NodeInputOutput) => {
       updateInternal((draft) => {
-        draft.internalIO.outputs.push(output)
+        draft.data.internalIO.outputs.push(output)
       })
     },
     [updateInternal],

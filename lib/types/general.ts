@@ -1,15 +1,16 @@
 import { Edge as _Edge, Node as _Node } from '@xyflow/react'
+import { INPUT_GROUPS_FIELD } from '../hooks/node'
 
 export namespace Graph {
-  export type NodeData<
+  export type NodeDataIO<
     Data extends Record<string, unknown> = Record<string, unknown>,
   > = Data & {
+    [INPUT_GROUPS_FIELD]: string[]
     internalIO: NodeIO
   }
 
-  export type Node<Data extends NodeData = NodeData> = _Node<Data> & {
-    data: NodeData<Data>
-  }
+  export type Node<Data extends NodeDataIO = NodeDataIO> = _Node<Data>
+
   export type NodeInputOutput = {
     id: string
     name: string
@@ -33,4 +34,4 @@ export namespace Graph {
 
 export type Node<
   Data extends Record<string, unknown> = Record<string, unknown>,
-> = Graph.Node<Graph.NodeData<Data>>
+> = Graph.Node<Graph.NodeDataIO<Data>>
